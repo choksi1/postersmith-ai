@@ -33,6 +33,9 @@ Build an AI web app for Etsy sellers of printable wall art. The app takes a 1-li
 - [x] PDF generation at A2 size
 - [x] Admin endpoints: stats, user management (CRUD)
 - [x] Static file serving for generated posters
+- [x] **NEW: Listing generation with OpenAI GPT-5.2**
+- [x] **NEW: Listing CRUD endpoints (generate, get, update, delete)**
+- [x] **NEW: Etsy-optimized titles, descriptions, and 13 tags**
 
 ### Frontend
 - [x] Landing page with professional "Modern Atelier" design
@@ -42,6 +45,10 @@ Build an AI web app for Etsy sellers of printable wall art. The app takes a 1-li
 - [x] Admin panel with stats and user management table
 - [x] Protected routes with role-based access
 - [x] Responsive design with Libre Baskerville + Manrope fonts
+- [x] **NEW: Manage Listings page with AI-generated content**
+- [x] **NEW: Generate Listing button on Dashboard**
+- [x] **NEW: Edit/regenerate listing functionality**
+- [x] **NEW: Copy to clipboard for title, description, tags**
 
 ## Prioritized Backlog
 
