@@ -1,0 +1,163 @@
+{
+  "identity": {
+    "name": "PosterSmith AI",
+    "mission": "To provide Etsy sellers with a distraction-free, high-end studio environment for creating best-selling wall art.",
+    "vibe": "Professional, Minimalist, Curatorial, Calm",
+    "archetype": "The Modern Atelier"
+  },
+  "typography": {
+    "fonts": {
+      "heading": {
+        "family": "Libre Baskerville",
+        "url": "https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap",
+        "usage": "Headings, Hero Titles, 'Artistic' text elements"
+      },
+      "body": {
+        "family": "Manrope",
+        "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap",
+        "usage": "UI elements, buttons, inputs, long-form text"
+      }
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight leading-tight",
+      "h2": "text-3xl md:text-4xl font-normal tracking-tight",
+      "h3": "text-2xl font-medium tracking-normal",
+      "body_lg": "text-lg leading-relaxed",
+      "body": "text-base leading-relaxed text-stone-600",
+      "caption": "text-sm text-stone-500 uppercase tracking-widest"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#FDFBF7",
+        "paper": "#FFFFFF",
+        "subtle": "#F5F2EB"
+      },
+      "foreground": {
+        "default": "#2D2A26",
+        "muted": "#6B665E",
+        "light": "#A8A29D"
+      },
+      "brand": {
+        "primary": "#748C70",
+        "primary_hover": "#5E755B",
+        "secondary": "#E8E4D9"
+      },
+      "accent": {
+        "default": "#BC5D41",
+        "soft": "#E6D5CF"
+      },
+      "utility": {
+        "border": "#E5E0D6",
+        "input_bg": "#FFFFFF",
+        "success": "#748C70",
+        "error": "#D9534F"
+      }
+    },
+    "tailwind_config": {
+      "colors": {
+        "studio": {
+          "bg": "#FDFBF7",
+          "paper": "#FFFFFF",
+          "text": "#2D2A26",
+          "muted": "#6B665E",
+          "sage": "#748C70",
+          "sage-dark": "#5E755B",
+          "border": "#E5E0D6",
+          "terracotta": "#BC5D41"
+        }
+      }
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "card": "0 1px 2px rgba(0,0,0,0.05)",
+      "poster": "0 20px 40px -10px rgba(0,0,0,0.1), 0 10px 20px -5px rgba(0,0,0,0.05)",
+      "floating": "0 10px 30px rgba(0,0,0,0.08)"
+    },
+    "radius": {
+      "default": "0px",
+      "button": "0px",
+      "input": "0px",
+      "card": "0px",
+      "poster": "0px"
+    },
+    "textures": {
+      "paper_grain": "url('https://www.transparenttextures.com/patterns/cream-paper.png')"
+    }
+  },
+  "layout_strategy": {
+    "spacing": {
+      "container_padding": "p-6 md:p-12",
+      "section_gap": "gap-12 md:gap-24",
+      "element_gap": "gap-4 md:gap-8"
+    },
+    "grid": {
+      "dashboard": "grid grid-cols-1 lg:grid-cols-12 gap-6",
+      "gallery": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+    },
+    "containers": {
+      "main": "max-w-7xl mx-auto",
+      "focus": "max-w-3xl mx-auto"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-studio-text text-white hover:bg-studio-muted px-8 py-3 text-sm uppercase tracking-widest transition-all duration-300 rounded-none",
+      "secondary": "bg-transparent border border-studio-border text-studio-text hover:bg-studio-text hover:text-white px-8 py-3 text-sm uppercase tracking-widest transition-all duration-300 rounded-none",
+      "ghost": "text-studio-muted hover:text-studio-text hover:bg-studio-border/20 px-4 py-2 text-sm transition-all duration-300 rounded-none"
+    },
+    "inputs": {
+      "default": "bg-white border-0 border-b border-studio-border focus:border-studio-text focus:ring-0 px-0 py-3 text-lg placeholder:text-studio-light transition-all rounded-none font-serif"
+    },
+    "cards": {
+      "default": "bg-white border border-studio-border p-8 hover:shadow-sm transition-all duration-300"
+    },
+    "poster_preview": {
+      "aspect_ratio": "aspect-[1/1.414]",
+      "styles": "bg-white shadow-2xl transform transition-transform duration-500 hover:scale-[1.01]"
+    }
+  },
+  "image_urls": {
+    "hero_background": {
+      "description": "Minimalist art studio workspace with natural light, plants, and framed posters",
+      "search_query": "minimalist art studio natural light",
+      "fallback": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=2874&auto=format&fit=crop"
+    },
+    "feature_mockup": {
+      "description": "Framed A2 poster on a clean white wall in a modern living room",
+      "search_query": "framed poster white wall living room",
+      "fallback": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=2874&auto=format&fit=crop"
+    },
+    "texture_overlay": {
+      "description": "Subtle paper texture for background",
+      "search_query": "white paper texture high resolution",
+      "fallback": "https://www.transparenttextures.com/patterns/cream-paper.png"
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. FILE EXTENSIONS: The project uses .js files for React components. Stick to .js extension but use JSX syntax.",
+    "2. THEME SETUP: Implement the 'studio' color palette in tailwind.config.js immediately. The entire app should feel like a physical art gallery.",
+    "3. FONTS: Add Libre Baskerville and Manrope via Google Fonts in index.html or index.css. Do NOT use default sans.",
+    "4. SHADCN: When using shadcn components, STRIP their default radius. Force 'rounded-none' to maintain the sharp, professional print-studio aesthetic.",
+    "5. POSTER PREVIEW: The A2 preview (aspect ratio 1:1.414) is the most critical element. It must be centered, large, and have a realistic drop-shadow to look like paper floating above the desk.",
+    "6. IMAGES: The image selector tool failed during the design phase. You MUST run the `image_selector_tool` again with the queries provided in 'image_urls' section to get fresh, valid URLs. Use the fallback only if absolutely necessary.",
+    "7. GENERATION FLOW: The 'Generate' button should be the primary call to action - use the 'primary' button style (Black background).",
+    "8. PREVIEW LOADER: Use a skeleton loader that maintains the A2 aspect ratio while generating.",
+    "9. MOBILE: On mobile, the preview should take up 70% of the viewport height, with controls in a bottom drawer or below the fold."
+  ],
+  "UNIVERSAL_GUIDELINES": [
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) sparingly, prefer solid 'paper' aesthetic for this brand.",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc for icons. Use proper SVG icons (Lucide/Heroicons).",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "All interactive and key informational elements MUST include a data-testid attribute."
+  ]
+}
