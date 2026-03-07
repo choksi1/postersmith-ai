@@ -1,9 +1,9 @@
 {
   "summary": {
-    "tests_run": 13,
-    "tests_passed": 12,
-    "success_rate": 92.3076923076923,
-    "timestamp": "2026-03-07T12:03:22.117012"
+    "tests_run": 14,
+    "tests_passed": 8,
+    "success_rate": 57.14285714285714,
+    "timestamp": "2026-03-07T13:49:44.916532"
   },
   "detailed_results": [
     {
@@ -43,8 +43,8 @@
     },
     {
       "name": "Generate Poster",
-      "success": true,
-      "details": "Status: 200"
+      "success": false,
+      "details": "Expected 200, got 500 - Poster generation failed: User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing."
     },
     {
       "name": "Get User Posters",
@@ -53,23 +53,28 @@
     },
     {
       "name": "Admin Stats",
-      "success": true,
-      "details": "Status: 200"
+      "success": false,
+      "details": "Expected 200, got 403 - Admin access required"
     },
     {
       "name": "Admin Get All Users",
-      "success": true,
-      "details": "Status: 200"
+      "success": false,
+      "details": "Expected 200, got 403 - Admin access required"
     },
     {
       "name": "Admin Update User Role",
-      "success": true,
-      "details": "Status: 200"
+      "success": false,
+      "details": "Expected 200, got 403 - Admin access required"
     },
     {
       "name": "Creator Cannot Access Admin Stats",
       "success": true,
       "details": "Status: 403"
+    },
+    {
+      "name": "Listing Tests Skipped",
+      "success": false,
+      "details": "No poster ID available"
     }
   ]
 }

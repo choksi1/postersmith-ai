@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import { toast } from "sonner";
@@ -10,7 +10,8 @@ import {
   Plus,
   Image as ImageIcon,
   LogOut,
-  Settings
+  FileText,
+  Sparkles
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,22 +25,52 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [posters, setPosters] = useState([]);
+  const [listings, setListings] = useState({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [generatingListingId, setGeneratingListingId] = useState(null);
 
   useEffect(() => {
-    fetchPosters();
+    fetchData();
   }, []);
 
-  const fetchPosters = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/posters`);
-      setPosters(response.data);
+      const [postersRes, listingsRes] = await Promise.all([
+        axios.get(`${API}/posters`),
+        axios.get(`${API}/listings`)
+      ]);
+      setPosters(postersRes.data);
+      
+      // Create a map of poster_id -> listing
+      const listingsMap = {};
+      listingsRes.data.forEach(l => {
+        listingsMap[l.poster_id] = l;
+      });
+      setListings(listingsMap);
     } catch (error) {
       toast.error("Failed to load posters");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateListing = async (posterId, e) => {
+    e.stopPropagation();
+    setGeneratingListingId(posterId);
+    try {
+      const response = await axios.post(`${API}/listings/generate`, {
+        poster_id: posterId
+      });
+      setListings(prev => ({ ...prev, [posterId]: response.data }));
+      toast.success("Listing generated! View in Manage Listings.");
+    } catch (error) {
+      const message = error.response?.data?.detail || "Failed to generate listing";
+      toast.error(message);
+    } finally {
+      setGeneratingListingId(null);
     }
   };
 
@@ -88,6 +119,13 @@ const Dashboard = () => {
               data-testid="dashboard-link"
             >
               My Posters
+            </Link>
+            <Link 
+              to="/listings" 
+              className="text-studio-muted hover:text-studio-text transition-colors duration-300 font-body text-sm"
+              data-testid="listings-link"
+            >
+              Manage Listings
             </Link>
             {user?.role === "admin" && (
               <Link 
@@ -230,9 +268,37 @@ const Dashboard = () => {
                   <p className="font-body text-sm text-studio-text truncate mb-1">
                     {poster.prompt}
                   </p>
-                  <p className="font-body text-xs text-studio-muted capitalize">
-                    {poster.style_preset}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-body text-xs text-studio-muted capitalize">
+                      {poster.style_preset}
+                    </p>
+                    {poster.status === "completed" && (
+                      listings[poster.id] ? (
+                        <Link
+                          to="/listings"
+                          className="text-xs text-studio-sage hover:text-studio-sage-dark font-body inline-flex items-center gap-1"
+                          data-testid={`view-listing-${poster.id}`}
+                        >
+                          <FileText className="w-3 h-3" />
+                          View Listing
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={(e) => generateListing(poster.id, e)}
+                          disabled={generatingListingId === poster.id}
+                          className="text-xs text-studio-sage hover:text-studio-sage-dark font-body inline-flex items-center gap-1"
+                          data-testid={`generate-listing-btn-${poster.id}`}
+                        >
+                          {generatingListingId === poster.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-3 h-3" />
+                          )}
+                          {generatingListingId === poster.id ? "Generating..." : "Generate Listing"}
+                        </button>
+                      )
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

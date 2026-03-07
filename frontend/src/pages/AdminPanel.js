@@ -129,6 +129,13 @@ const AdminPanel = () => {
               My Posters
             </Link>
             <Link 
+              to="/listings" 
+              className="text-studio-muted hover:text-studio-text transition-colors duration-300 font-body text-sm"
+              data-testid="listings-link"
+            >
+              Manage Listings
+            </Link>
+            <Link 
               to="/admin" 
               className="text-studio-text font-body text-sm font-medium"
               data-testid="admin-link"

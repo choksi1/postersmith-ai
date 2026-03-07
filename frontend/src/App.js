@@ -8,6 +8,7 @@ import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Workspace from "@/pages/Workspace";
 import AdminPanel from "@/pages/AdminPanel";
+import ManageListings from "@/pages/ManageListings";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
@@ -71,6 +72,11 @@ function AppRoutes() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/listings" element={
+        <ProtectedRoute>
+          <ManageListings />
         </ProtectedRoute>
       } />
       <Route path="/admin" element={

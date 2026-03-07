@@ -112,6 +112,30 @@ class AdminUserUpdate(BaseModel):
     role: Optional[str] = None
     name: Optional[str] = None
 
+# ============ LISTING MODELS ============
+
+class ListingContent(BaseModel):
+    title: str
+    description: str
+    tags: List[str]
+
+class ListingResponse(BaseModel):
+    id: str
+    poster_id: str
+    title: str
+    description: str
+    tags: List[str]
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+class ListingGenerateRequest(BaseModel):
+    poster_id: str
+
+class ListingUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+
 # ============ STYLE PRESETS ============
 
 STYLE_PRESETS = {
@@ -579,6 +603,248 @@ async def get_stats(admin: dict = Depends(require_admin)):
         "completed_posters": completed_posters,
         "failed_posters": failed_posters
     }
+
+# ============ LISTING ROUTES ============
+
+@api_router.post("/listings/generate", response_model=ListingResponse)
+async def generate_listing(request: ListingGenerateRequest, current_user: dict = Depends(get_current_user)):
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    
+    # Get the poster
+    query = {"id": request.poster_id}
+    if current_user.get('role') != 'admin':
+        query["user_id"] = current_user['id']
+    
+    poster = await db.posters.find_one(query, {"_id": 0})
+    
+    if not poster:
+        raise HTTPException(status_code=404, detail="Poster not found")
+    
+    if poster.get('status') != 'completed':
+        raise HTTPException(status_code=400, detail="Poster must be completed before generating listing")
+    
+    # Check if listing already exists
+    existing_listing = await db.listings.find_one({"poster_id": request.poster_id}, {"_id": 0})
+    if existing_listing:
+        # Return existing listing
+        created_at = existing_listing['created_at']
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        updated_at = existing_listing.get('updated_at')
+        if updated_at and isinstance(updated_at, str):
+            updated_at = datetime.fromisoformat(updated_at)
+        
+        return ListingResponse(
+            id=existing_listing['id'],
+            poster_id=existing_listing['poster_id'],
+            title=existing_listing['title'],
+            description=existing_listing['description'],
+            tags=existing_listing['tags'],
+            created_at=created_at,
+            updated_at=updated_at
+        )
+    
+    # Generate listing content with AI
+    llm_key = os.environ.get('EMERGENT_LLM_KEY', '')
+    
+    style_name = poster.get('style_preset', 'minimalist').replace('-', ' ').title()
+    
+    system_prompt = """You are an expert Etsy SEO specialist who creates highly optimized listings for digital wall art posters. 
+Your listings consistently rank well in Etsy search and convert browsers into buyers.
+You understand Etsy's search algorithm and buyer psychology for home decor products."""
+    
+    user_prompt = f"""Create an Etsy listing for this digital wall art poster:
+
+POSTER DETAILS:
+- Original idea: "{poster.get('prompt', '')}"
+- Style: {style_name}
+- Format: Digital Download (A2 size, 300 DPI, JPG + PDF)
+- Category: Printable Wall Art
+
+Generate:
+1. TITLE: An SEO-optimized Etsy title (max 140 characters). Include key search terms like "printable wall art", "digital download", "A2 poster". Make it descriptive and searchable.
+
+2. DESCRIPTION: A compelling product description (200-400 words) that includes:
+   - Opening hook about the artwork
+   - What's included (A2 size, 300 DPI, JPG and PDF formats)
+   - How to use (instant download, print at home or professional printer)
+   - Style and decor suggestions
+   - A brief note about digital product (no physical item shipped)
+
+3. TAGS: Exactly 13 Etsy tags (each max 20 characters) optimized for search. Include a mix of:
+   - Style descriptors
+   - Room types (living room, bedroom, nursery, office)
+   - Art type terms (wall art, poster, print)
+   - Trending decor terms
+
+Format your response EXACTLY as JSON:
+{{"title": "your title here", "description": "your description here", "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10", "tag11", "tag12", "tag13"]}}"""
+
+    try:
+        chat = LlmChat(
+            api_key=llm_key,
+            session_id=f"listing-{request.poster_id}",
+            system_message=system_prompt
+        ).with_model("openai", "gpt-5.2")
+        
+        user_message = UserMessage(text=user_prompt)
+        response = await chat.send_message(user_message)
+        
+        # Parse the JSON response
+        import json
+        import re
+        
+        # Extract JSON from response
+        json_match = re.search(r'\{[\s\S]*\}', response)
+        if not json_match:
+            raise ValueError("No JSON found in response")
+        
+        listing_data = json.loads(json_match.group())
+        
+        # Validate and clean the data
+        title = listing_data.get('title', '')[:140]
+        description = listing_data.get('description', '')
+        tags = listing_data.get('tags', [])[:13]
+        tags = [tag[:20] for tag in tags]  # Ensure each tag is max 20 chars
+        
+        # Create listing record
+        listing_id = str(uuid.uuid4())
+        listing_doc = {
+            "id": listing_id,
+            "poster_id": request.poster_id,
+            "user_id": current_user['id'],
+            "title": title,
+            "description": description,
+            "tags": tags,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.listings.insert_one(listing_doc)
+        
+        return ListingResponse(
+            id=listing_id,
+            poster_id=request.poster_id,
+            title=title,
+            description=description,
+            tags=tags,
+            created_at=datetime.now(timezone.utc)
+        )
+        
+    except Exception as e:
+        logging.error(f"Listing generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate listing: {str(e)}")
+
+@api_router.get("/listings/{poster_id}", response_model=ListingResponse)
+async def get_listing(poster_id: str, current_user: dict = Depends(get_current_user)):
+    query = {"poster_id": poster_id}
+    if current_user.get('role') != 'admin':
+        query["user_id"] = current_user['id']
+    
+    listing = await db.listings.find_one(query, {"_id": 0})
+    
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    
+    created_at = listing['created_at']
+    if isinstance(created_at, str):
+        created_at = datetime.fromisoformat(created_at)
+    updated_at = listing.get('updated_at')
+    if updated_at and isinstance(updated_at, str):
+        updated_at = datetime.fromisoformat(updated_at)
+    
+    return ListingResponse(
+        id=listing['id'],
+        poster_id=listing['poster_id'],
+        title=listing['title'],
+        description=listing['description'],
+        tags=listing['tags'],
+        created_at=created_at,
+        updated_at=updated_at
+    )
+
+@api_router.put("/listings/{poster_id}", response_model=ListingResponse)
+async def update_listing(poster_id: str, update_data: ListingUpdateRequest, current_user: dict = Depends(get_current_user)):
+    query = {"poster_id": poster_id}
+    if current_user.get('role') != 'admin':
+        query["user_id"] = current_user['id']
+    
+    listing = await db.listings.find_one(query, {"_id": 0})
+    
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    
+    update_fields = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    
+    if update_data.title is not None:
+        update_fields["title"] = update_data.title[:140]
+    if update_data.description is not None:
+        update_fields["description"] = update_data.description
+    if update_data.tags is not None:
+        update_fields["tags"] = [tag[:20] for tag in update_data.tags[:13]]
+    
+    await db.listings.update_one({"poster_id": poster_id}, {"$set": update_fields})
+    
+    # Get updated listing
+    updated_listing = await db.listings.find_one({"poster_id": poster_id}, {"_id": 0})
+    
+    created_at = updated_listing['created_at']
+    if isinstance(created_at, str):
+        created_at = datetime.fromisoformat(created_at)
+    updated_at = updated_listing.get('updated_at')
+    if updated_at and isinstance(updated_at, str):
+        updated_at = datetime.fromisoformat(updated_at)
+    
+    return ListingResponse(
+        id=updated_listing['id'],
+        poster_id=updated_listing['poster_id'],
+        title=updated_listing['title'],
+        description=updated_listing['description'],
+        tags=updated_listing['tags'],
+        created_at=created_at,
+        updated_at=updated_at
+    )
+
+@api_router.get("/listings", response_model=List[ListingResponse])
+async def get_all_listings(current_user: dict = Depends(get_current_user)):
+    query = {}
+    if current_user.get('role') != 'admin':
+        query["user_id"] = current_user['id']
+    
+    listings = await db.listings.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    
+    result = []
+    for listing in listings:
+        created_at = listing['created_at']
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        updated_at = listing.get('updated_at')
+        if updated_at and isinstance(updated_at, str):
+            updated_at = datetime.fromisoformat(updated_at)
+        
+        result.append(ListingResponse(
+            id=listing['id'],
+            poster_id=listing['poster_id'],
+            title=listing['title'],
+            description=listing['description'],
+            tags=listing['tags'],
+            created_at=created_at,
+            updated_at=updated_at
+        ))
+    
+    return result
+
+@api_router.delete("/listings/{poster_id}")
+async def delete_listing(poster_id: str, current_user: dict = Depends(get_current_user)):
+    query = {"poster_id": poster_id}
+    if current_user.get('role') != 'admin':
+        query["user_id"] = current_user['id']
+    
+    result = await db.listings.delete_one(query)
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    
+    return {"message": "Listing deleted successfully"}
 
 # ============ HEALTH CHECK ============
 

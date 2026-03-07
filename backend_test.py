@@ -297,6 +297,81 @@ class PosterSmithAPITester:
             403  # Should be forbidden
         )[0]
 
+    def test_listing_endpoints(self, poster_id):
+        """Test listing-related endpoints"""
+        print("\n📋 Testing Listing Endpoints...")
+        
+        if not poster_id:
+            self.log_test("Listing Tests Skipped", False, "No poster ID available")
+            return
+        
+        # Test GET /api/listings - Get all user's listings
+        success, response = self.run_test(
+            "Get All Listings",
+            "GET",
+            "listings",
+            200
+        )
+        
+        # Test POST /api/listings/generate - Generate listing for a poster
+        success, response = self.run_test(
+            "Generate Listing",
+            "POST",
+            "listings/generate",
+            200,
+            {"poster_id": poster_id}
+        )
+        
+        if success:
+            # Verify listing response structure
+            required_fields = ['id', 'poster_id', 'title', 'description', 'tags', 'created_at']
+            missing_fields = [field for field in required_fields if field not in response]
+            if missing_fields:
+                self.log_test("Listing Response Structure", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Listing Response Structure", True)
+                print(f"   Generated Title: {response['title'][:50]}...")
+                print(f"   Tags Count: {len(response.get('tags', []))}")
+            
+            # Test GET /api/listings/{poster_id} - Get specific listing
+            self.run_test(
+                "Get Specific Listing",
+                "GET",
+                f"listings/{poster_id}",
+                200
+            )
+            
+            # Test PUT /api/listings/{poster_id} - Update listing
+            update_data = {
+                "title": "Updated Test Title - Digital Wall Art",
+                "description": "Updated description for testing purposes.",
+                "tags": ["test", "updated", "wall art", "digital"]
+            }
+            
+            self.run_test(
+                "Update Listing",
+                "PUT",
+                f"listings/{poster_id}",
+                200,
+                update_data
+            )
+            
+        # Test error cases
+        self.run_test(
+            "Generate Listing - Invalid Poster ID",
+            "POST",
+            "listings/generate",
+            404,
+            {"poster_id": "invalid-poster-id"}
+        )
+        
+        self.run_test(
+            "Get Listing - Non-existent",
+            "GET",
+            "listings/non-existent-id",
+            404
+        )
+
 def main():
     print("🚀 Starting PosterSmith AI Backend API Tests")
     print("=" * 60)
@@ -325,6 +400,9 @@ def main():
     tester.test_admin_get_users()
     tester.test_admin_update_user_role()
     tester.test_creator_cannot_access_admin()
+    
+    # Listing tests
+    tester.test_listing_endpoints(poster_id if poster_generated else None)
     
     # Print summary
     print("\n" + "=" * 60)

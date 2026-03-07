@@ -112,6 +112,13 @@ const Workspace = () => {
             >
               My Posters
             </Link>
+            <Link 
+              to="/listings" 
+              className="text-studio-muted hover:text-studio-text transition-colors duration-300 font-body text-sm"
+              data-testid="listings-link"
+            >
+              Manage Listings
+            </Link>
             {user?.role === "admin" && (
               <Link 
                 to="/admin" 
