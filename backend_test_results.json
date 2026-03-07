@@ -1,0 +1,75 @@
+{
+  "summary": {
+    "tests_run": 13,
+    "tests_passed": 12,
+    "success_rate": 92.3076923076923,
+    "timestamp": "2026-03-07T12:03:22.117012"
+  },
+  "detailed_results": [
+    {
+      "name": "Health Check",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "API Root",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Register First User (Admin)",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Register Second User (Creator)",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Login (Invalid Credentials)",
+      "success": true,
+      "details": "Status: 401"
+    },
+    {
+      "name": "Get Current User",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Protected Route (No Auth)",
+      "success": false,
+      "details": "Expected 401, got 403 - Not authenticated"
+    },
+    {
+      "name": "Generate Poster",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Get User Posters",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Admin Stats",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Admin Get All Users",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Admin Update User Role",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Creator Cannot Access Admin Stats",
+      "success": true,
+      "details": "Status: 403"
+    }
+  ]
+}
