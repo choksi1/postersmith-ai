@@ -6,23 +6,14 @@ import { toast } from "sonner";
 import { 
   Loader2, 
   Sparkles,
-  LogOut,
   Copy,
   Check,
   Type,
   Tag,
   AlignLeft,
   Store,
-  X,
-  ChevronDown
+  X
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -32,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { LoggedInNav, Footer } from "@/components/Navigation";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -192,73 +184,11 @@ const ManageListings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
-          <Link to="/workspace" className="font-heading text-xl text-gray-900" data-testid="logo">
-            PosterSmith AI
-          </Link>
-          
-          <nav className="flex items-center gap-6">
-            <Link 
-              to="/workspace" 
-              className="text-gray-500 hover:text-gray-900 transition-colors duration-300 font-body text-sm"
-              data-testid="workspace-link"
-            >
-              Workspace
-            </Link>
-            <Link 
-              to="/dashboard" 
-              className="text-gray-500 hover:text-gray-900 transition-colors duration-300 font-body text-sm"
-              data-testid="dashboard-link"
-            >
-              My Posters
-            </Link>
-            <Link 
-              to="/listings" 
-              className="text-gray-900 font-body text-sm font-medium"
-              data-testid="listings-link"
-            >
-              Manage Listings
-            </Link>
-            {user?.role === "admin" && (
-              <Link 
-                to="/admin" 
-                className="text-gray-500 hover:text-gray-900 transition-colors duration-300 font-body text-sm"
-                data-testid="admin-link"
-              >
-                Admin
-              </Link>
-            )}
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="w-10 h-10 bg-violet-500 text-white rounded-full flex items-center justify-center font-body text-sm"
-                  data-testid="user-menu-btn"
-                >
-                  {user?.name?.charAt(0).toUpperCase()}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <div className="px-3 py-2">
-                  <p className="font-body text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="font-body text-xs text-gray-500">{user?.email}</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout} className="text-red-500 cursor-pointer">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <LoggedInNav />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 md:px-12 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-6 md:px-12 py-8 w-full">
         {posters.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-2xl border border-gray-200">
             <Store className="w-16 h-16 text-gray-300 mx-auto mb-6" />
@@ -588,6 +518,8 @@ const ManageListings = () => {
           </div>
         )}
       </main>
+      
+      <Footer />
     </div>
   );
 };
