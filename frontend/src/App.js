@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
-import Dashboard from "@/pages/Dashboard";
+import Library from "@/pages/Library";
 import Workspace from "@/pages/Workspace";
 import AdminPanel from "@/pages/AdminPanel";
 import ManageListings from "@/pages/ManageListings";
@@ -15,8 +15,8 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-studio-bg flex items-center justify-center">
-        <div className="animate-pulse text-studio-muted">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -37,8 +37,8 @@ const PublicRoute = ({ children }) => {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-studio-bg flex items-center justify-center">
-        <div className="animate-pulse text-studio-muted">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -69,9 +69,9 @@ function AppRoutes() {
           <Workspace />
         </ProtectedRoute>
       } />
-      <Route path="/dashboard" element={
+      <Route path="/library" element={
         <ProtectedRoute>
-          <Dashboard />
+          <Library />
         </ProtectedRoute>
       } />
       <Route path="/listings" element={
@@ -84,6 +84,28 @@ function AppRoutes() {
           <AdminPanel />
         </ProtectedRoute>
       } />
+      {/* Redirect old dashboard route to library */}
+      <Route path="/dashboard" element={<Navigate to="/library" replace />} />
+      {/* Placeholder routes for account pages */}
+      <Route path="/account" element={
+        <ProtectedRoute>
+          <Navigate to="/workspace" replace />
+        </ProtectedRoute>
+      } />
+      <Route path="/account/billing" element={
+        <ProtectedRoute>
+          <Navigate to="/workspace" replace />
+        </ProtectedRoute>
+      } />
+      <Route path="/account/settings" element={
+        <ProtectedRoute>
+          <Navigate to="/workspace" replace />
+        </ProtectedRoute>
+      } />
+      {/* Placeholder routes for footer pages */}
+      <Route path="/help" element={<Navigate to="/" replace />} />
+      <Route path="/terms" element={<Navigate to="/" replace />} />
+      <Route path="/contact" element={<Navigate to="/" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
